@@ -22,18 +22,15 @@ class Welcome extends StatelessWidget {
                   children: [
                     // icono
                     Container(
-                      width: 100,
-                      height: 100,
+                      width: 110,
+                      height: 110,
                       decoration: BoxDecoration(
-                        color: colorFuerte,
                         shape: BoxShape.circle,
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: Center(
                         child: Image.asset(
-                          "assets/viento.gif",
-                          width: 80,
-                          height: 80,
+                          "assets/logo.png",
                         ),
                       ),
                     ),
