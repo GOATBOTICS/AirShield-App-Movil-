@@ -1,5 +1,5 @@
 import 'package:airshield/constants.dart';
-import 'package:airshield/pages/dashboard.dart';
+import 'package:airshield/pages/location.dart';
 import 'package:flutter/material.dart';
 
 class Welcome extends StatelessWidget {
@@ -102,7 +102,7 @@ class Welcome extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const Dashboard(),
+                          builder: (context) => const Location(),
                         ),
                       );
                     },

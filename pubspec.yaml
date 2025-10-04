@@ -1,6 +1,6 @@
 name: airshield
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -9,8 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-    
+
   flutter_launcher_icons: "^0.14.2"
+  http: ^1.2.2
+  awesome_dialog: ^3.2.1
+  searchfield: ^1.3.5
 
 flutter_launcher_icons:
   android: true
@@ -29,4 +32,4 @@ flutter:
   uses-material-design: true
 
   assets:
-  - assets/
+    - assets/

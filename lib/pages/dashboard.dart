@@ -1,8 +1,29 @@
 import 'package:airshield/constants.dart';
+import 'package:airshield/data/location_data.dart';
 import 'package:flutter/material.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
+
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  @override
+  void initState() {
+    super.initState();
+
+    final location = LocationData.instance.location;
+
+    if (location != null) {
+      debugPrint("País: ${location.pais}");
+      debugPrint("Estado: ${location.estado}");
+      debugPrint("Ciudad: ${location.ciudad}");
+    } else {
+      debugPrint("No hay ubicación guardada en el singleton.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
