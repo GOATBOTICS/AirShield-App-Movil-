@@ -1,22 +1,28 @@
 import 'package:airshield/models/location_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LocationData {
-  // Instancia privada
-  static final LocationData _instance = LocationData._internal();
+  static Future<LocationModel?> getUserUbication(String uid) async {
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('userLocation')
+          .doc(uid)
+          .get();
 
-  LocationModel? _location;
+      if (userDoc.exists && userDoc.data() != null) {
+        final data = userDoc.data()!;
 
-  LocationData._internal();
-
-  static LocationData get instance => _instance;
-
-  void setLocation(LocationModel location) {
-    _location = location;
-  }
-
-  LocationModel? get location => _location;
-
-  void clear() {
-    _location = null;
+        return LocationModel(
+          pais: data['pais'] ?? 'Desconocido',
+          estado: data['estado'] ?? 'Desconocido',
+          ciudad: data['municipio'] ?? 'Desconocido',
+          uid: uid,
+        );
+      } else {
+        return null;
+      }
+    } catch (e) {
+      rethrow;
+    }
   }
 }

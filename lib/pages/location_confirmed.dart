@@ -3,6 +3,7 @@ import 'package:airshield/data/location_data.dart';
 import 'package:airshield/pages/dashboard.dart';
 import 'package:airshield/util/responsive.dart';
 import 'package:airshield/widgets/card_white.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LocationConfirmed extends StatefulWidget {
@@ -13,18 +14,22 @@ class LocationConfirmed extends StatefulWidget {
 }
 
 class _LocationConfirmedState extends State<LocationConfirmed> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   String pais = "Buscando...";
   String estado = "Buscando...";
   String municipio = "Buscando...";
 
   void _datosUbicacion() async {
-    final location = LocationData.instance.location;
+    final user = _auth.currentUser;
+    
+      final uid = user?.uid;
+      final ubicacion = await LocationData.getUserUbication(uid!);
 
-    if (location != null) {
+    if (ubicacion != null) {
       setState(() {
-        pais = location.pais ?? "";
-        estado = location.estado ?? "";
-        municipio = location.ciudad ?? "";
+        pais = ubicacion.pais ?? "";
+        estado = ubicacion.estado ?? "";
+        municipio = ubicacion.ciudad ?? "";
       });
     } else {
       debugPrint('No se encontraron datos en el singleton.');

@@ -1,14 +1,16 @@
 import 'package:airshield/apis/mexico_info.dart';
 import 'package:airshield/constants.dart';
-import 'package:airshield/data/location_data.dart';
+import 'package:airshield/data/user_data.dart';
 import 'package:airshield/models/location_model.dart';
-import 'package:airshield/pages/dashboard.dart';
+import 'package:airshield/models/user_model.dart';
 import 'package:airshield/pages/location_confirmed.dart';
+import 'package:airshield/util/log_out.dart';
 import 'package:airshield/util/responsive.dart';
 import 'package:airshield/widgets/buscar_input.dart';
 import 'package:airshield/widgets/card_white.dart';
 import 'package:airshield/widgets/input_field.dart';
 import 'package:airshield/widgets/mostrar_mensaje.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Location extends StatefulWidget {
@@ -39,9 +41,14 @@ class _LocationState extends State<Location> {
   List<String> suggestionsCiudades = [];
   List<String> allCiudades = [];
 
+  final UserData userData = UserData(); // Usuario
+
   TextEditingController pais = TextEditingController();
   TextEditingController estados = TextEditingController();
   TextEditingController ciudades = TextEditingController();
+
+  // Obtenemos el usuario actual (si está autenticado)
+  User? currentUser = FirebaseAuth.instance.currentUser;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -236,11 +243,14 @@ class _LocationState extends State<Location> {
       ciudad: ciudades.text,
     );
 
-    try {
-      // Guardamos en el singleton
-      LocationData.instance.setLocation(locationModel);
+    UserModel userModel = UserModel(uid: currentUser?.uid.toString());
 
-      await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      debugPrint(locationModel.ciudad);
+      debugPrint(locationModel.estado);
+      debugPrint(locationModel.pais);
+      debugPrint(userModel.uid);
+      await userData.updateUserLocation(locationModel, userModel);
 
       // Limpia campos
       vaciar();
@@ -263,7 +273,7 @@ class _LocationState extends State<Location> {
         mostrarMensajeError(
           context,
           "Error",
-          "Ocurrió un error al guardar los datos, reinténtalo",
+          "Ocurrió un error al guardar los datos, reinténtalo ${e.toString()}",
         );
       }
     }
@@ -437,7 +447,7 @@ class _LocationState extends State<Location> {
                                     Colors.red.shade300,
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: () => logout(context),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 5,

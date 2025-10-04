@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "824739029067",
+    "project_id": "airshield-ccbb3",
+    "storage_bucket": "airshield-ccbb3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:824739029067:android:77344b27ae415e3d61edce",
+        "android_client_info": {
+          "package_name": "com.example.airshield"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIUUhZc0n6QechStJZwxj3V6DOLnVaK4g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

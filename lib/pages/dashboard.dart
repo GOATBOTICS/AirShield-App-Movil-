@@ -1,5 +1,8 @@
+import 'package:airshield/apis/openweather_api.dart';
 import 'package:airshield/constants.dart';
 import 'package:airshield/data/location_data.dart';
+import 'package:airshield/util/log_out.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class Dashboard extends StatefulWidget {
@@ -10,18 +13,65 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  UbicacionApi clima = UbicacionApi();
+  String temperatura = '...';
+  String humedad = '...';
+  String velocidad = '...';
+  String presion = '...';
+
   @override
   void initState() {
     super.initState();
+    obtenerClima();
+  }
 
-    final location = LocationData.instance.location;
+  Future<void> obtenerClima() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      final uid = user.uid;
+      final ubicacion = await LocationData.getUserUbication(uid);
 
-    if (location != null) {
-      debugPrint("País: ${location.pais}");
-      debugPrint("Estado: ${location.estado}");
-      debugPrint("Ciudad: ${location.ciudad}");
-    } else {
-      debugPrint("No hay ubicación guardada en el singleton.");
+      if (ubicacion != null) {
+        final pais = ubicacion.pais;
+        final estado = ubicacion.estado;
+        final municipio = ubicacion.ciudad;
+
+        if (pais != null && estado != null && municipio != null) {
+          final coordenadas = await clima.obtenerCoordenadas(
+            pais,
+            municipio,
+            estado,
+          );
+
+          if (coordenadas != null) {
+            final lat = coordenadas['lat'];
+            final lon = coordenadas['lon'];
+
+            debugPrint(lat.toString());
+            debugPrint(lon.toString());
+
+            if (lat != null && lon != null) {
+              final condiciones = await clima.obtenerCondicionesActuales(
+                lat,
+                lon,
+              );
+              setState(() {
+                temperatura = "${condiciones['temperatura']}°C";
+                humedad = "${condiciones['humedad']}%";
+                velocidad = "${condiciones['velocidad']}km";
+                presion = "${condiciones['presion']}";
+              });
+              debugPrint(temperatura);
+              debugPrint(humedad);
+              debugPrint(velocidad);
+              debugPrint(presion);
+            }
+          }
+        }
+      } else {
+        debugPrint("Esta vacio");
+      }
     }
   }
 
@@ -32,29 +82,29 @@ class _DashboardState extends State<Dashboard> {
         "icon": Icons.thermostat,
         "iconColor": Colors.red,
         "circleColor": Colors.red,
-        "value": "28°C",
+        "value": temperatura,
         "label": "Temperatura",
       },
       {
         "icon": Icons.water_drop,
         "iconColor": Colors.blue,
         "circleColor": Colors.blue,
-        "value": "65%",
+        "value": humedad,
         "label": "Humidity",
       },
       {
         "icon": Icons.speed,
         "iconColor": Colors.purple,
         "circleColor": Colors.purple,
-        "value": "1013",
+        "value": presion,
         "label": "Pressure (hPa)",
       },
       {
         "icon": Icons.air,
         "iconColor": Color(0xFF06B6D4),
         "circleColor": Color(0xFF06B6D4),
-        "value": "12",
-        "label": "Wind (km/h)",
+        "value": velocidad,
+        "label": "Wind",
       },
     ];
 
@@ -146,6 +196,23 @@ class _DashboardState extends State<Dashboard> {
                             ),
                             onPressed: () {},
                             icon: Icon(Icons.settings),
+                          ),
+                          IconButton(
+                            style: ButtonStyle(
+                              shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(11),
+                                ),
+                              ),
+                              backgroundColor: WidgetStatePropertyAll(
+                                Colors.red.shade100,
+                              ),
+                            ),
+                            onPressed: () => logout(context),
+                            icon: Icon(
+                              Icons.exit_to_app,
+                              color: Colors.red.shade500,
+                            ),
                           ),
                         ],
                       ),
