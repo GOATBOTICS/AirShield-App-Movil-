@@ -30,14 +30,14 @@ class _SignInScreenState extends State<SignInScreen> {
   String? _handleCorreo(String value) {
     // Verificamos que el correo no este vacio
     if (value.isEmpty) {
-      return "Ingrese un correo electronico";
+      return "Enter an email address";
     }
 
     // Expresión regular para validar el formato de un correo electrónico
     final emailRegex =
         RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
     if (!emailRegex.hasMatch(value)) {
-      return "Ingrese un correo electrónico válido";
+      return "Enter a valid email address";
     }
 
     return null;

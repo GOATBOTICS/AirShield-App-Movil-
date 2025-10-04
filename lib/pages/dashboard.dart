@@ -19,6 +19,7 @@ class _DashboardState extends State<Dashboard> {
   String humedad = '...';
   String velocidad = '...';
   String presion = '...';
+  String indice = '...';
 
   @override
   void initState() {
@@ -293,19 +294,24 @@ class _DashboardState extends State<Dashboard> {
                                 ),
                               ],
                             ),
-                            Column(
+                            Row(
                               children: [
-                                Text(
-                                  "Last updated",
-                                  style: TextStyle(color: Colors.white),
+                                Column(
+                                  children: [
+                                    Text(
+                                      "Last updated",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Text(
+                                      "2 min ago",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  "2 min ago",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                TextButton(onPressed: () {}, child: Text("Vista al satelite"))
                               ],
                             ),
                           ],
@@ -314,6 +320,93 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
                   SizedBox(height: 12),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xFF27AE60),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(8),
+                              bottomLeft: Radius.circular(8),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Center(
+                              child: Text(
+                                "Precaucion",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(color: Color(0xFFFFD700)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Center(
+                              child: Text(
+                                "Bueno",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(color: Color(0xFFFFA500)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Center(
+                              child: Text(
+                                "Moderado",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(color: Color(0xFFFF6B6B)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Center(
+                              child: Text(
+                                "Excelente",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xFFC44569),
+                            borderRadius: BorderRadius.only(
+                              bottomRight: Radius.circular(8),
+                              topRight: Radius.circular(8),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: Center(
+                              child: Text(
+                                "Malo",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
 
                   // Grid de temperatura, humedad, presion, viento
                   GridView.builder(
