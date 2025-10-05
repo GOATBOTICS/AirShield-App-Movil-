@@ -454,31 +454,6 @@ class _LocationState extends State<Location> {
                               ),
                             ),
                             SizedBox(height: 20),
-
-                            // Cerrar sesion
-                            SizedBox(
-                              width: double.infinity,
-                              child: TextButton(
-                                style: ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(
-                                    Colors.red.shade300,
-                                  ),
-                                ),
-                                onPressed: () {},
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 5,
-                                  ),
-                                  child: const Text(
-                                    "Cerrar sesion",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),

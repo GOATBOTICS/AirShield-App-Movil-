@@ -2,7 +2,9 @@ import 'package:airshield/apis/openweather_api.dart';
 import 'package:airshield/constants.dart';
 import 'package:airshield/data/location_data.dart';
 import 'package:airshield/pages/location.dart';
+import 'package:airshield/pages/satellite.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -270,12 +272,18 @@ class _DashboardState extends State<Dashboard> {
                                 Colors.white,
                               ),
                             ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
+                            onPressed: () async {
+                              // Limpiar datos locales de ubicación
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.remove('pais');
+                              await prefs.remove('estado');
+                              await prefs.remove('ciudad');
+                              Navigator.of(context).pushAndRemoveUntil(
                                 MaterialPageRoute(
                                   builder: (context) => const Location(),
                                 ),
+                                (Route<dynamic> route) => false,
                               );
                             },
                             icon: Icon(Icons.location_on),
@@ -380,7 +388,12 @@ class _DashboardState extends State<Dashboard> {
                                     elevation: 4,
                                   ),
                                   onPressed: () {
-                                    // Acción del botón
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const Satellite(),
+                                      ),
+                                    );
                                   },
                                   icon: const Icon(
                                     Icons.satellite_alt,
