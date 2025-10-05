@@ -147,4 +147,59 @@ class NasaApi {
       return null;
     }
   }
+
+  /// 🔹 Nuevo método para obtener temperaturas horarias (NASA POWER API) de una sola fecha
+  static Future<List<Map<String, dynamic>>> obtenerTemperaturasHorario({
+    required double latitud,
+    required double longitud,
+    required DateTime fechaSeleccionada,
+  }) async {
+    try {
+      // 🔹 Convertir fecha al formato YYYYMMDD
+      final fechaStr =
+          "${fechaSeleccionada.year}"
+          "${fechaSeleccionada.month.toString().padLeft(2, '0')}"
+          "${fechaSeleccionada.day.toString().padLeft(2, '0')}";
+
+      final url =
+          'https://power.larc.nasa.gov/api/temporal/hourly/point?latitude=$latitud&longitude=$longitud&community=ag&parameters=T2M&start=$fechaStr&end=$fechaStr';
+
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode != 200) {
+        return [];
+      }
+
+      final data = json.decode(response.body);
+
+      // 🔹 Acceso a los valores horarios
+      final Map<String, dynamic>? valoresT2M =
+          data['properties']?['parameter']?['T2M']?.cast<String, dynamic>();
+
+      if (valoresT2M == null) {
+        return [];
+      }
+
+      // 🔹 Convertir cada clave (ej. "2025100400") a formato legible
+      final List<Map<String, dynamic>> listaTemperaturas = [];
+
+      valoresT2M.forEach((hora, valor) {
+        final horaLocal = hora.substring(8, 10); // "00", "01", etc.
+        final fechaFormateada =
+            "${hora.substring(6, 8)}/${hora.substring(4, 6)}/${hora.substring(0, 4)}";
+
+        listaTemperaturas.add({
+          "fecha": fechaFormateada,
+          "hora": "$horaLocal:00",
+          "temperatura": (valor == -999)
+              ? "No disponible"
+              : "${valor.toString()} °C",
+        });
+      });
+
+      return listaTemperaturas;
+    } catch (e) {
+      return [];
+    }
+  }
 }

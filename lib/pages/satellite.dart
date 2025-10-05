@@ -16,10 +16,84 @@ class _SatelliteState extends State<Satellite> {
   UbicacionApi clima = UbicacionApi();
   String descripcion = '';
 
+  DateTime? _fechaSeleccionada;
+
   String mapaVisualizado = "Mapa Satelital";
   String? _imagenTempo;
   bool _cargando = true;
   int _imagenSeleccionada = 0;
+
+  // Dentro de tu clase _SatelliteState
+  bool _cargandoTemperatura = false;
+  List<Map<String, dynamic>> _temperaturasHorarias = [];
+
+  Future<void> _cargarTemperaturas() async {
+    setState(() => _cargandoTemperatura = true);
+
+    try {
+      final ubicacion = await LocationData.getUserUbication();
+      if (ubicacion == null) {
+        setState(() => _cargandoTemperatura = false);
+        return;
+      }
+
+      final pais = ubicacion.pais;
+      final estado = ubicacion.estado;
+      final municipio = ubicacion.ciudad;
+      if (pais == null || estado == null || municipio == null) {
+        setState(() => _cargandoTemperatura = false);
+        return;
+      }
+
+      final coordenadas = await clima.obtenerCoordenadas(
+        pais,
+        municipio,
+        estado,
+      );
+      if (coordenadas == null) {
+        setState(() => _cargandoTemperatura = false);
+        return;
+      }
+
+      final lat = coordenadas['lat']!;
+      final lon = coordenadas['lon']!;
+
+      // 🔹 Obtener temperatura por hora
+      final temperaturas = await NasaApi.obtenerTemperaturasHorario(
+        latitud: lat,
+        longitud: lon,
+        fechaSeleccionada:
+            _fechaSeleccionada ??
+            DateTime.now().subtract(const Duration(days: 1)),
+      );
+
+      // 🔹 Obtener AQI
+      final dataAQI = await clima.obtenerContaminacion(lat, lon);
+      int indiceAQI = -1;
+      if (dataAQI != null && dataAQI['main']?['aqi'] != null) {
+        indiceAQI = dataAQI['main']['aqi'] as int;
+      }
+
+      // 🔹 Combinar temperatura con AQI
+      final List<Map<String, dynamic>> combinado = temperaturas.map((item) {
+        return {
+          'hora': item['hora'],
+          'temperatura': item['temperatura'],
+          'aqi': indiceAQI >= 0 ? indiceAQI.toString() : 'No disponible',
+        };
+      }).toList();
+
+      setState(() {
+        _temperaturasHorarias = combinado;
+        _cargandoTemperatura = false;
+      });
+    } catch (e) {
+      setState(() {
+        _temperaturasHorarias = [];
+        _cargandoTemperatura = false;
+      });
+    }
+  }
 
   final List<String> etiquetas = ['NO₂', 'HCHO', 'CLDO4'];
 
@@ -317,11 +391,123 @@ class _SatelliteState extends State<Satellite> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text(
-                        "Histórico de ayer",
-                        style: TextStyle(fontSize: 15),
+                    elevation: 3,
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Seleccionar fecha del histórico",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _fechaSeleccionada != null
+                                    ? "${_fechaSeleccionada!.day}/${_fechaSeleccionada!.month}/${_fechaSeleccionada!.year}"
+                                    : "Indefinido",
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  final DateTime? picked = await showDatePicker(
+                                    context: context,
+                                    initialDate:
+                                        _fechaSeleccionada ??
+                                        DateTime.now().subtract(
+                                          const Duration(days: 1),
+                                        ),
+                                    firstDate: DateTime(2023, 1, 1),
+                                    lastDate: DateTime.now(),
+                                  );
+                                  if (picked != null &&
+                                      picked != _fechaSeleccionada) {
+                                    setState(() {
+                                      _fechaSeleccionada = picked;
+                                    });
+                                    await _cargarTemperaturas();
+                                  }
+                                },
+                                icon: const Icon(
+                                  Icons.calendar_today,
+                                  size: 18,
+                                ),
+                                label: const Text("Cambiar fecha"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: colorFuerte,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // 🔹 Listado de temperaturas horarias
+                          SizedBox(
+                            height: 300, // Ajusta según necesidad
+                            child: _cargandoTemperatura
+                                ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : (_temperaturasHorarias.isEmpty
+                                      ? const Center(
+                                          child: Text(
+                                            "Busca una fecha para mostrar información",
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.black54,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        )
+                                      : ListView.separated(
+                                          itemCount:
+                                              _temperaturasHorarias.length,
+                                          separatorBuilder: (_, __) =>
+                                              const Divider(),
+                                          itemBuilder: (context, index) {
+                                            final item =
+                                                _temperaturasHorarias[index];
+                                            return Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                  item['hora'],
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  "${item['temperatura']}  |  AQI: ${item['aqi']}",
+                                                  style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black87,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        )),
+                          ),
+                        ],
                       ),
                     ),
                   ),
