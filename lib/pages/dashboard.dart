@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:airshield/apis/openweather_api.dart';
 import 'package:airshield/constants.dart';
 import 'package:airshield/data/location_data.dart';
@@ -32,10 +34,116 @@ class _DashboardState extends State<Dashboard> {
   double nh3 = 0;
   int indice = 0; // AQI
 
+  Timer? _updateTimer;
+  int _minutesRemaining = 10;
+
   @override
   void initState() {
     super.initState();
     obtenerClima();
+
+    _updateTimer = Timer.periodic(const Duration(minutes: 10), (_) async {
+      setState(() {
+        co = 0;
+        no = 0;
+        no2 = 0;
+        o3 = 0;
+        so2 = 0;
+        pm2_5 = 0;
+        pm10 = 0;
+        nh3 = 0;
+        indice = 0;
+
+        temperatura = '...';
+        humedad = '...';
+        velocidad = '...';
+        presion = '...';
+      });
+
+      // Pequeña espera antes de recargar
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Recargar datos de clima y contaminación
+      obtenerClima();
+    });
+    iniciarTimerActualizacion();
+  }
+
+  @override
+  void dispose() {
+    // Cancelar timer al cerrar el widget
+    _updateTimer?.cancel();
+    super.dispose();
+  }
+
+  void iniciarTimerActualizacion() {
+    _updateTimer = Timer.periodic(const Duration(minutes: 1), (timer) async {
+      if (_minutesRemaining > 1) {
+        setState(() {
+          _minutesRemaining--;
+        });
+      } else {
+        // Reiniciar contador y actualizar datos
+        setState(() {
+          co = 0;
+          no = 0;
+          no2 = 0;
+          o3 = 0;
+          so2 = 0;
+          pm2_5 = 0;
+          pm10 = 0;
+          nh3 = 0;
+          indice = 0;
+
+          temperatura = '...';
+          humedad = '...';
+          velocidad = '...';
+          presion = '...';
+          _minutesRemaining = 10; // reiniciar el contador a 10 minutos
+        });
+
+        await Future.delayed(const Duration(milliseconds: 500));
+        obtenerClima();
+      }
+    });
+  }
+
+  Map<String, String> getRecomendacion(int indice) {
+    switch (indice) {
+      case 1:
+        return {
+          'subtitulo': 'Excellent for outdoor sports',
+          'descripcion':
+              'Air quality is perfect for exercising and outdoor activities.',
+        };
+      case 2:
+        return {
+          'subtitulo': 'Good for outdoor activities',
+          'descripcion':
+              'Air quality is acceptable; safe to go outside for sports.',
+        };
+      case 3:
+        return {
+          'subtitulo': 'Moderate caution',
+          'descripcion':
+              'Air quality is moderate; sensitive people should limit prolonged outdoor activity.',
+        };
+      case 4:
+        return {
+          'subtitulo': 'Poor air quality',
+          'descripcion': 'Air quality is bad; avoid long outdoor activities.',
+        };
+      case 5:
+        return {
+          'subtitulo': 'Very poor air quality',
+          'descripcion': 'Air quality is unhealthy; stay indoors if possible.',
+        };
+      default:
+        return {
+          'subtitulo': 'Loading...',
+          'descripcion': 'Air quality data is being retrieved.',
+        };
+    }
   }
 
   Map<String, dynamic> getIndiceInfo(int indice) {
@@ -81,6 +189,23 @@ class _DashboardState extends State<Dashboard> {
       );
     } else {
       debugPrint('No se pudieron obtener datos de contaminación.');
+    }
+  }
+
+  Color getRecomendacionColor(int indice) {
+    switch (indice) {
+      case 1:
+        return Color(0xFF27AE60); // Excellent - verde
+      case 2:
+        return Color(0xFFFFD700); // Good - amarillo
+      case 3:
+        return Color(0xFFFFA500); // Moderate - naranja
+      case 4:
+        return Color(0xFFFF6B6B); // Bad - rojo claro
+      case 5:
+        return Color(0xFFC44569); // Caution - rojo oscuro
+      default:
+        return Colors.grey.shade300; // Cargando o sin datos
     }
   }
 
@@ -165,6 +290,9 @@ class _DashboardState extends State<Dashboard> {
     ];
 
     final info = getIndiceInfo(indice);
+
+    final recomendacion = getRecomendacion(indice);
+    final colorContenedor = getRecomendacionColor(indice);
 
     return Scaffold(
       backgroundColor: Color(0xFFEFF8FF),
@@ -644,6 +772,61 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
                   SizedBox(height: 12),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            "Temperature prediction",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Image.asset("assets/temperatureprediction.jpg"),
+                          SizedBox(height: 8),
+                          Text(
+                            "Prediction of the temperature to the next days",
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 12),
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            "Air quality",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Image.asset("assets/airquality.png"),
+                          SizedBox(height: 8),
+                          Text(
+                            "Quality of the next days ",
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
 
                   // Recomendaciones de la salud
                   Card(
@@ -669,51 +852,15 @@ class _DashboardState extends State<Dashboard> {
                             ],
                           ),
                           const SizedBox(height: 12),
+
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.green.shade100,
-                              border: Border.all(color: Colors.green, width: 2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 28,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: const [
-                                      Text(
-                                        "Air quality is good for outdoor activities",
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        "Perfect conditions for exercise and outdoor sports",
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.shade100,
+                              color: colorContenedor.withValues(
+                                alpha: .2,
+                              ), // versión suave para el fondo
                               border: Border.all(
-                                color: Colors.orange,
+                                color: colorContenedor,
                                 width: 2,
                               ),
                               borderRadius: BorderRadius.circular(12),
@@ -721,9 +868,9 @@ class _DashboardState extends State<Dashboard> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const Icon(
-                                  Icons.warning,
-                                  color: Colors.orange,
+                                Icon(
+                                  Icons.check_circle,
+                                  color: colorContenedor,
                                   size: 28,
                                 ),
                                 const SizedBox(width: 12),
@@ -731,24 +878,24 @@ class _DashboardState extends State<Dashboard> {
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    children: const [
+                                    children: [
                                       Text(
-                                        "Sensitive individuals should limit prolonged outdoor exertion",
-                                        style: TextStyle(
+                                        recomendacion['subtitulo']!,
+                                        style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16,
                                         ),
                                       ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        "People with respiratory conditions should be cautios",
-                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(recomendacion['descripcion']!),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
+
+                          SizedBox(height: 12),
                         ],
                       ),
                     ),
@@ -848,14 +995,15 @@ class _DashboardState extends State<Dashboard> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.access_time,
                                   color: Colors.blueAccent,
                                   size: 28,
                                 ),
-                                SizedBox(height: 12),
-                                Text(
+                                const SizedBox(height: 12),
+                                const Text(
                                   "Next update",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
@@ -863,10 +1011,10 @@ class _DashboardState extends State<Dashboard> {
                                     height: 0.9,
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(
-                                  "In 8 minutes",
-                                  style: TextStyle(fontSize: 14),
+                                  "In $_minutesRemaining minutes",
+                                  style: const TextStyle(fontSize: 14),
                                 ),
                               ],
                             ),

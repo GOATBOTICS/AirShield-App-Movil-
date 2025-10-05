@@ -33,7 +33,7 @@ class _ReportState extends State<Report> {
   String presion = "...";
   String viento = "...";
   String sugerencia =
-      "Reporte de calidad del aire y condiciones atmosféricas para la ubicación seleccionada. Incluye niveles de contaminantes clave y el índice de calidad del aire (AQI). Proporciona información confiable para monitoreo ambiental, evaluación de riesgos y toma de decisiones.";
+      "Air quality and atmospheric conditions report for the selected location. Includes levels of key pollutants and the Air Quality Index (AQI). Provides reliable information for environmental monitoring, risk assessment, and decision-making.";
 
   @override
   void initState() {
@@ -261,7 +261,7 @@ class _ReportState extends State<Report> {
                           SizedBox(height: 12),
 
                           Text(
-                            "Reporte de calidad del aire y condiciones atmosféricas para la ubicación seleccionada. Incluye niveles de contaminantes clave y el índice de calidad del aire (AQI). Proporciona información confiable para monitoreo ambiental, evaluación de riesgos y toma de decisiones.",
+                            "Air quality and atmospheric conditions report for the selected location. Includes levels of key pollutants and the Air Quality Index (AQI). Provides reliable information for environmental monitoring, risk assessment, and decision-making.",
                           ),
                           SizedBox(height: 12),
                           Text(
