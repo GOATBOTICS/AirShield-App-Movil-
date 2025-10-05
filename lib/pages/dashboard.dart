@@ -2,6 +2,7 @@ import 'package:airshield/apis/openweather_api.dart';
 import 'package:airshield/constants.dart';
 import 'package:airshield/data/location_data.dart';
 import 'package:airshield/pages/location.dart';
+import 'package:airshield/pages/report.dart';
 import 'package:airshield/pages/satellite.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,15 +41,15 @@ class _DashboardState extends State<Dashboard> {
   Map<String, dynamic> getIndiceInfo(int indice) {
     switch (indice) {
       case 1:
-        return {'texto': 'Excelente', 'color': Color(0xFF27AE60)};
+        return {'texto': 'Excellent', 'color': Color(0xFF27AE60)};
       case 2:
-        return {'texto': 'Bueno', 'color': Color(0xFFFFD700)};
+        return {'texto': 'Good', 'color': Color(0xFFFFD700)};
       case 3:
-        return {'texto': 'Moderado', 'color': Color(0xFFFFA500)};
+        return {'texto': 'Moderate', 'color': Color(0xFFFFA500)};
       case 4:
-        return {'texto': 'Malo', 'color': Color(0xFFFF6B6B)};
+        return {'texto': 'Bad', 'color': Color(0xFFFF6B6B)};
       case 5:
-        return {'texto': 'Precaución', 'color': Color(0xFFC44569)};
+        return {'texto': 'Caution', 'color': Color(0xFFC44569)};
       default:
         return {'texto': 'Cargando...', 'color': Colors.grey};
     }
@@ -138,7 +139,7 @@ class _DashboardState extends State<Dashboard> {
         "iconColor": Colors.red,
         "circleColor": Colors.red,
         "value": temperatura,
-        "label": "Temperatura",
+        "label": "Temperature",
       },
       {
         "icon": Icons.water_drop,
@@ -400,7 +401,7 @@ class _DashboardState extends State<Dashboard> {
                                     size: 22,
                                   ),
                                   label: const Text(
-                                    "Vista al satélite",
+                                    "Satellite view",
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -432,7 +433,7 @@ class _DashboardState extends State<Dashboard> {
                             padding: const EdgeInsets.symmetric(vertical: 6.0),
                             child: Center(
                               child: Text(
-                                "Excelente",
+                                "Excellent",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -446,7 +447,7 @@ class _DashboardState extends State<Dashboard> {
                             padding: const EdgeInsets.symmetric(vertical: 6.0),
                             child: Center(
                               child: Text(
-                                "Bueno",
+                                "Good",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -460,7 +461,7 @@ class _DashboardState extends State<Dashboard> {
                             padding: const EdgeInsets.symmetric(vertical: 6.0),
                             child: Center(
                               child: Text(
-                                "Moderado",
+                                "Moderate",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -474,7 +475,7 @@ class _DashboardState extends State<Dashboard> {
                             padding: const EdgeInsets.symmetric(vertical: 6.0),
                             child: Center(
                               child: Text(
-                                "Excelente",
+                                "Bad",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -494,7 +495,7 @@ class _DashboardState extends State<Dashboard> {
                             padding: const EdgeInsets.symmetric(vertical: 6.0),
                             child: Center(
                               child: Text(
-                                "Malo",
+                                "Caution",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -752,6 +753,47 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 12),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Report(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.insert_drive_file, // Icono de reporte
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
+                        "Generate Report",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E88E5),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        shadowColor: Colors.blueAccent.withAlpha(100),
+                        elevation: 4,
+                      ),
+                    ),
+                  ),
+
                   SizedBox(height: 12),
 
                   // Localización y siguiente update

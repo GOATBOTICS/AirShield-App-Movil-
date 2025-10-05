@@ -115,7 +115,7 @@ class _LocationState extends State<Location> {
 
   String? _handleEstado(String value) {
     if (value.isEmpty) {
-      return "Seleccione un estado valido";
+      return "Select your location";
     }
 
     return null;
@@ -123,7 +123,7 @@ class _LocationState extends State<Location> {
 
   String? _handleCiudad(String value) {
     if (value.isEmpty) {
-      return "Seleccione una ciudad valida";
+      return "Select your location";
     }
 
     return null;
@@ -365,7 +365,7 @@ class _LocationState extends State<Location> {
                           children: [
                             // Titulo
                             Text(
-                              'Selecciona tu ubicación', // Mostrar el correo del usuario
+                              'Select your location', // Mostrar el correo del usuario
                               style: const TextStyle(
                                 fontSize: 23,
                                 fontWeight: FontWeight.bold,
@@ -380,7 +380,7 @@ class _LocationState extends State<Location> {
                                 children: [
                                   InputField(
                                     controller: pais,
-                                    label: "Selecciona un pais",
+                                    label: "Select a country",
                                     disabled: true,
                                     defaultText: "MEXICO",
                                   ),
@@ -393,7 +393,7 @@ class _LocationState extends State<Location> {
                                     suggestions: suggestionsEstados,
                                     toSearch: allEstados,
                                     controller: estados,
-                                    hint: "Selecciona un estado",
+                                    hint: "Select a state",
                                     peticion: buscarEstados,
                                   ),
                                   espaciado(),
@@ -405,7 +405,7 @@ class _LocationState extends State<Location> {
                                     suggestions: suggestionsCiudades,
                                     toSearch: allCiudades,
                                     controller: ciudades,
-                                    hint: "Selecciona una ciudad",
+                                    hint: "Select a city",
                                     peticion: buscarCiudades,
                                   ),
                                   espaciado(),
@@ -444,7 +444,7 @@ class _LocationState extends State<Location> {
                                           ),
                                         )
                                       : const Text(
-                                          "Confirmar",
+                                          "Confirm",
                                           style: TextStyle(
                                             fontSize: 16,
                                             color: Colors.white,

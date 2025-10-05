@@ -192,7 +192,7 @@ class NasaApi {
           "fecha": fechaFormateada,
           "hora": "$horaLocal:00",
           "temperatura": (valor == -999)
-              ? "No disponible"
+              ? "Not available"
               : "${valor.toString()} °C",
         });
       });

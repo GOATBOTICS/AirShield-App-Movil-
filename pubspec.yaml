@@ -25,7 +25,7 @@ flutter_launcher_icons:
   ios: true
   image_path: "assets/logo.png"
   remove_alpha_channel_ios: true
-  adaptive_icon_background: "#1e3a8a"
+  adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "assets/logo.png"
 
 dev_dependencies:

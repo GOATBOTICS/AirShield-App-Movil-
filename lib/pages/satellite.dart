@@ -18,7 +18,7 @@ class _SatelliteState extends State<Satellite> {
 
   DateTime? _fechaSeleccionada;
 
-  String mapaVisualizado = "Mapa Satelital";
+  String mapaVisualizado = "NO₂";
   String? _imagenTempo;
   bool _cargando = true;
   int _imagenSeleccionada = 0;
@@ -79,7 +79,7 @@ class _SatelliteState extends State<Satellite> {
         return {
           'hora': item['hora'],
           'temperatura': item['temperatura'],
-          'aqi': indiceAQI >= 0 ? indiceAQI.toString() : 'No disponible',
+          'aqi': indiceAQI >= 0 ? indiceAQI.toString() : 'Not available',
         };
       }).toList();
 
@@ -99,19 +99,19 @@ class _SatelliteState extends State<Satellite> {
 
   final Map<String, String> descripciones = {
     'NO2':
-        'El satélite TEMPO mide la cantidad de NO₂ en la atmósfera. El satélite proporciona un '
-        'mapa que muestra dónde hay más o menos NO₂ usando colores que van de bajos a altos niveles. '
-        'Este gas proviene principalmente de la quema de combustibles fósiles, tráfico y procesos industriales',
+        'The TEMPO satellite measures the amount of NO₂ in the atmosphere. The satellite provides a '
+        'map that shows where there is more or less NO₂ using colors ranging from low to high levels. '
+        'This gas mainly comes from the burning of fossil fuels, traffic, and industrial processes.',
 
     'HCHO':
-        'TEMPO también mide la concentración de formaldehído (HCHO), '
-        'un gas que se forma en la atmósfera por la descomposición de compuestos orgánicos y emisiones humanas.'
-        'La API genera un mapa con los niveles de HCHO, desde los más bajos hasta los más altos.',
+        'TEMPO also measures the concentration of formaldehyde (HCHO), '
+        'a gas that forms in the atmosphere from the breakdown of organic compounds and human emissions. '
+        'The API generates a map with HCHO levels, from the lowest to the highest.',
 
     'CLDO4':
-        'Se muestra la información de las nubes, incluyendo cuánto cubren el cielo y qué tan densas son. '
-        'El mapa que devuelve TEMPO indica de manera visual las zonas con menos o más nubes, usando colores que facilitan '
-        'ver dónde hay cielo despejado y dónde hay mayor cobertura nubosa.',
+        'Cloud information is displayed, including how much of the sky they cover and how dense they are. '
+        'The map provided by TEMPO visually indicates areas with fewer or more clouds, using colors that make it easy '
+        'to see where the sky is clear and where cloud coverage is higher.',
   };
 
   final Map<int, String?> _mapasCargados = {};
@@ -399,7 +399,7 @@ class _SatelliteState extends State<Satellite> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            "Seleccionar fecha del histórico",
+                            "Select date from history",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
@@ -414,7 +414,7 @@ class _SatelliteState extends State<Satellite> {
                               Text(
                                 _fechaSeleccionada != null
                                     ? "${_fechaSeleccionada!.day}/${_fechaSeleccionada!.month}/${_fechaSeleccionada!.year}"
-                                    : "Indefinido",
+                                    : "Indefinite",
                                 style: const TextStyle(
                                   fontSize: 15,
                                   color: Colors.black87,
@@ -444,7 +444,7 @@ class _SatelliteState extends State<Satellite> {
                                   Icons.calendar_today,
                                   size: 18,
                                 ),
-                                label: const Text("Cambiar fecha"),
+                                label: const Text("Change date"),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: colorFuerte,
                                   foregroundColor: Colors.white,
@@ -466,7 +466,7 @@ class _SatelliteState extends State<Satellite> {
                                 : (_temperaturasHorarias.isEmpty
                                       ? const Center(
                                           child: Text(
-                                            "Busca una fecha para mostrar información",
+                                            "Find a date to display information",
                                             style: TextStyle(
                                               fontSize: 15,
                                               color: Colors.black54,

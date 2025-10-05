@@ -14,9 +14,9 @@ class LocationConfirmed extends StatefulWidget {
 }
 
 class _LocationConfirmedState extends State<LocationConfirmed> {
-  String pais = "Buscando...";
-  String estado = "Buscando...";
-  String municipio = "Buscando...";
+  String pais = "Searching...";
+  String estado = "Searching...";
+  String municipio = "Searching...";
 
   void _datosUbicacion() async {
     final ubicacion = await LocationData.getUserUbication();
@@ -95,7 +95,7 @@ class _LocationConfirmedState extends State<LocationConfirmed> {
                           SizedBox(height: 15),
                           // Texto
                           Text(
-                            "Ubicación Seleccionada Exitosamente",
+                            "Location Successfully Selected",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 25,
@@ -104,7 +104,7 @@ class _LocationConfirmedState extends State<LocationConfirmed> {
                           ),
                           SizedBox(height: 15),
                           Text(
-                            "Tu ubicación ha sido registrada correctamente en nuestro sistema",
+                            "Your location has been successfully registered in our system.",
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.normal,
@@ -130,7 +130,7 @@ class _LocationConfirmedState extends State<LocationConfirmed> {
                       child: Column(
                         children: [
                           Text(
-                            "Detalles de la ubicación",
+                            "Location details",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 20,
@@ -141,18 +141,15 @@ class _LocationConfirmedState extends State<LocationConfirmed> {
                           Divider(color: Colors.grey, height: 2),
                           SizedBox(height: 15),
                           // Pais
-                          RowData(descripcion: "Pais:", variable: pais),
+                          RowData(descripcion: "Country:", variable: pais),
                           SizedBox(height: 15),
 
                           // Estado
-                          RowData(descripcion: "Estado:", variable: estado),
+                          RowData(descripcion: "State:", variable: estado),
                           SizedBox(height: 15),
 
                           // Municipio
-                          RowData(
-                            descripcion: "Municipio:",
-                            variable: municipio,
-                          ),
+                          RowData(descripcion: "City:", variable: municipio),
                         ],
                       ),
                     ),
@@ -172,7 +169,7 @@ class _LocationConfirmedState extends State<LocationConfirmed> {
                         children: [
                           // Titulo
                           Text(
-                            "¿Qué sigue?",
+                            "What's next?",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 20,
@@ -183,7 +180,7 @@ class _LocationConfirmedState extends State<LocationConfirmed> {
                           Divider(color: Colors.grey, height: 2),
                           SizedBox(height: 15),
                           Text(
-                            "Ahora puedes acceder a información y servicios especificos para tu región. Explora las siguientes opciones:",
+                            "You can now access information and services specific to your region. Explore the following options:",
                             textAlign: TextAlign.start,
                             style: TextStyle(
                               fontSize: 16,
@@ -199,19 +196,19 @@ class _LocationConfirmedState extends State<LocationConfirmed> {
                               // Gif de hoja
                               GifsIconos(
                                 ruta: "assets/viento.gif",
-                                texto: "Calidad del aire",
+                                texto: "Air quality",
                               ),
 
                               // Gif de gota
                               GifsIconos(
                                 ruta: "assets/eye.gif",
-                                texto: "Monitoreo",
+                                texto: "Monitoring",
                               ),
 
                               // Gif de estadisticas
                               GifsIconos(
                                 ruta: "assets/estadisticas.gif",
-                                texto: "Analisis Regional",
+                                texto: "Analysis",
                               ),
                             ],
                           ),
@@ -231,7 +228,7 @@ class _LocationConfirmedState extends State<LocationConfirmed> {
                                   vertical: 1,
                                 ),
                                 child: const Text(
-                                  "Confirmar",
+                                  "Confirm",
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.white,
