@@ -1,8 +1,7 @@
 import 'package:airshield/apis/openweather_api.dart';
 import 'package:airshield/constants.dart';
 import 'package:airshield/data/location_data.dart';
-import 'package:airshield/util/log_out.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:airshield/pages/location.dart';
 import 'package:flutter/material.dart';
 
 class Dashboard extends StatefulWidget {
@@ -13,13 +12,22 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   UbicacionApi clima = UbicacionApi();
   String temperatura = '...';
   String humedad = '...';
   String velocidad = '...';
   String presion = '...';
-  String indice = '...';
+  String ciudad = "...";
+  // Dentro de tu clase State<>
+  double co = 0;
+  double no = 0;
+  double no2 = 0;
+  double o3 = 0;
+  double so2 = 0;
+  double pm2_5 = 0;
+  double pm10 = 0;
+  double nh3 = 0;
+  int indice = 0; // AQI
 
   @override
   void initState() {
@@ -27,51 +35,95 @@ class _DashboardState extends State<Dashboard> {
     obtenerClima();
   }
 
+  Map<String, dynamic> getIndiceInfo(int indice) {
+    switch (indice) {
+      case 1:
+        return {'texto': 'Excelente', 'color': Color(0xFF27AE60)};
+      case 2:
+        return {'texto': 'Bueno', 'color': Color(0xFFFFD700)};
+      case 3:
+        return {'texto': 'Moderado', 'color': Color(0xFFFFA500)};
+      case 4:
+        return {'texto': 'Malo', 'color': Color(0xFFFF6B6B)};
+      case 5:
+        return {'texto': 'Precaución', 'color': Color(0xFFC44569)};
+      default:
+        return {'texto': 'Cargando...', 'color': Colors.grey};
+    }
+  }
+
+  Future<void> cargarContaminacion(double lat, double lon) async {
+    final data = await clima.obtenerContaminacion(lat, lon);
+
+    if (data != null) {
+      setState(() {
+        // Partículas
+        co = (data['components']['co'] as num).toDouble();
+        no = (data['components']['no'] as num).toDouble();
+        no2 = (data['components']['no2'] as num).toDouble();
+        o3 = (data['components']['o3'] as num).toDouble();
+        so2 = (data['components']['so2'] as num).toDouble();
+        pm2_5 = (data['components']['pm2_5'] as num).toDouble();
+        pm10 = (data['components']['pm10'] as num).toDouble();
+        nh3 = (data['components']['nh3'] as num).toDouble();
+
+        // AQI
+        indice = data['main']['aqi'] as int;
+      });
+
+      // Debug
+      debugPrint('AQI: $indice');
+      debugPrint(
+        'CO: $co, NO: $no, NO2: $no2, O3: $o3, SO2: $so2, PM2.5: $pm2_5, PM10: $pm10, NH3: $nh3',
+      );
+    } else {
+      debugPrint('No se pudieron obtener datos de contaminación.');
+    }
+  }
+
   Future<void> obtenerClima() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      final uid = user.uid;
-      final ubicacion = await LocationData.getUserUbication(uid);
+    final ubicacion = await LocationData.getUserUbication();
 
-      if (ubicacion != null) {
-        final pais = ubicacion.pais;
-        final estado = ubicacion.estado;
-        final municipio = ubicacion.ciudad;
+    if (ubicacion != null) {
+      final pais = ubicacion.pais;
+      final estado = ubicacion.estado;
+      final municipio = ubicacion.ciudad;
 
-        if (pais != null && estado != null && municipio != null) {
-          final coordenadas = await clima.obtenerCoordenadas(
-            pais,
-            municipio,
-            estado,
-          );
+      if (pais != null && estado != null && municipio != null) {
+        setState(() {
+          ciudad = municipio;
+        });
+        final coordenadas = await clima.obtenerCoordenadas(
+          pais,
+          municipio,
+          estado,
+        );
 
-          if (coordenadas != null) {
-            final lat = coordenadas['lat'];
-            final lon = coordenadas['lon'];
+        if (coordenadas != null) {
+          final lat = coordenadas['lat'];
+          final lon = coordenadas['lon'];
 
-            debugPrint(lat.toString());
-            debugPrint(lon.toString());
+          debugPrint(lat.toString());
+          debugPrint(lon.toString());
 
-            if (lat != null && lon != null) {
-              final condiciones = await clima.obtenerCondicionesActuales(
-                lat,
-                lon,
-              );
-              setState(() {
-                temperatura = "${condiciones['temperatura']}°C";
-                humedad = "${condiciones['humedad']}%";
-                velocidad = "${condiciones['velocidad']}km";
-                presion = "${condiciones['presion']}";
-              });
-              debugPrint(temperatura);
-              debugPrint(humedad);
-              debugPrint(velocidad);
-              debugPrint(presion);
-            }
+          if (lat != null && lon != null) {
+            cargarContaminacion(lat, lon);
+            final condiciones = await clima.obtenerCondicionesActuales(
+              lat,
+              lon,
+            );
+            setState(() {
+              temperatura = "${condiciones['temperatura']}°C";
+              humedad = "${condiciones['humedad']}%";
+              velocidad = "${condiciones['velocidad']}km";
+              presion = "${condiciones['presion']}";
+            });
+            debugPrint(temperatura);
+            debugPrint(humedad);
+            debugPrint(velocidad);
+            debugPrint(presion);
           }
         }
-      } else {
-        debugPrint("Esta vacio");
       }
     }
   }
@@ -108,6 +160,8 @@ class _DashboardState extends State<Dashboard> {
         "label": "Wind",
       },
     ];
+
+    final info = getIndiceInfo(indice);
 
     return Scaffold(
       backgroundColor: Color(0xFFEFF8FF),
@@ -171,7 +225,28 @@ class _DashboardState extends State<Dashboard> {
                       Row(
                         children: [
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              setState(() {
+                                co = 0;
+                                no = 0;
+                                no2 = 0;
+                                o3 = 0;
+                                so2 = 0;
+                                pm2_5 = 0;
+                                pm10 = 0;
+                                nh3 = 0;
+                                indice = 0;
+
+                                temperatura = '...';
+                                humedad = '...';
+                                velocidad = '...';
+                                presion = '...';
+                              });
+                              await Future.delayed(
+                                const Duration(milliseconds: 500),
+                              );
+                              obtenerClima();
+                            },
                             style: ButtonStyle(
                               shape: WidgetStatePropertyAll(
                                 RoundedRectangleBorder(
@@ -195,25 +270,15 @@ class _DashboardState extends State<Dashboard> {
                                 Colors.white,
                               ),
                             ),
-                            onPressed: () {},
-                            icon: Icon(Icons.settings),
-                          ),
-                          IconButton(
-                            style: ButtonStyle(
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(11),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const Location(),
                                 ),
-                              ),
-                              backgroundColor: WidgetStatePropertyAll(
-                                Colors.red.shade100,
-                              ),
-                            ),
-                            onPressed: () => logout(context),
-                            icon: Icon(
-                              Icons.exit_to_app,
-                              color: Colors.red.shade500,
-                            ),
+                              );
+                            },
+                            icon: Icon(Icons.location_on),
                           ),
                         ],
                       ),
@@ -278,7 +343,7 @@ class _DashboardState extends State<Dashboard> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "42",
+                                  indice.toString(),
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -287,31 +352,49 @@ class _DashboardState extends State<Dashboard> {
                                   ),
                                 ),
                                 Text(
-                                  "Good",
+                                  info['texto'],
                                   style: TextStyle(
-                                    color: Colors.green.shade300,
+                                    color: info['color'],
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
                                   ),
                                 ),
                               ],
                             ),
                             Row(
                               children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      "Last updated",
-                                      style: TextStyle(color: Colors.white),
+                                TextButton.icon(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1E88E5),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 12,
                                     ),
-                                    Text(
-                                      "2 min ago",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                  ],
+                                    shadowColor: Colors.blueAccent.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                    elevation: 4,
+                                  ),
+                                  onPressed: () {
+                                    // Acción del botón
+                                  },
+                                  icon: const Icon(
+                                    Icons.satellite_alt,
+                                    size: 22,
+                                  ),
+                                  label: const Text(
+                                    "Vista al satélite",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
                                 ),
-                                TextButton(onPressed: () {}, child: Text("Vista al satelite"))
                               ],
                             ),
                           ],
@@ -336,7 +419,7 @@ class _DashboardState extends State<Dashboard> {
                             padding: const EdgeInsets.symmetric(vertical: 6.0),
                             child: Center(
                               child: Text(
-                                "Precaucion",
+                                "Excelente",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -507,112 +590,40 @@ class _DashboardState extends State<Dashboard> {
                             ],
                           ),
                           SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 15,
-                                    height: 15,
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text("PM2.5"),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text("12"),
-                                  SizedBox(width: 4),
-                                  Text("µg/m^2"),
-                                ],
-                              ),
-                            ],
+                          _buildParticleRow("CO", co, "ppm", Colors.teal),
+                          SizedBox(height: 16),
+                          _buildParticleRow("NO", no, "ppb", Colors.purple),
+                          SizedBox(height: 16),
+                          _buildParticleRow("NO2", no2, "ppb", Colors.blue),
+                          SizedBox(height: 16),
+                          _buildParticleRow("O3", o3, "ppb", Colors.orange),
+                          SizedBox(height: 16),
+                          _buildParticleRow(
+                            "SO2",
+                            so2,
+                            "ppb",
+                            Colors.yellow.shade700,
                           ),
                           SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 15,
-                                    height: 15,
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text("PM10"),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text("28"),
-                                  SizedBox(width: 4),
-                                  Text("µg/m^2"),
-                                ],
-                              ),
-                            ],
+                          _buildParticleRow(
+                            "PM2.5",
+                            pm2_5,
+                            "µg/m³",
+                            Colors.green,
                           ),
                           SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 15,
-                                    height: 15,
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text("NO2"),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text("18"),
-                                  SizedBox(width: 4),
-                                  Text("ppb"),
-                                ],
-                              ),
-                            ],
+                          _buildParticleRow(
+                            "PM10",
+                            pm10,
+                            "µg/m³",
+                            Colors.brown,
                           ),
                           SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 15,
-                                    height: 15,
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Text("O3"),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text("45"),
-                                  SizedBox(width: 4),
-                                  Text("ppb"),
-                                ],
-                              ),
-                            ],
+                          _buildParticleRow(
+                            "NH3",
+                            nh3,
+                            "ppb",
+                            Colors.redAccent,
                           ),
                         ],
                       ),
@@ -762,10 +773,7 @@ class _DashboardState extends State<Dashboard> {
                                   ),
                                 ),
                                 SizedBox(height: 4),
-                                Text(
-                                  "Mexico City",
-                                  style: TextStyle(fontSize: 14),
-                                ),
+                                Text(ciudad, style: TextStyle(fontSize: 14)),
                               ],
                             ),
                           ),
@@ -818,6 +826,37 @@ class _DashboardState extends State<Dashboard> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildParticleRow(
+    String name,
+    double value,
+    String unit,
+    Color color,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 15,
+              height: 15,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            SizedBox(width: 10),
+            Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        ),
+        Row(
+          children: [
+            Text(value.toStringAsFixed(2)), // muestra dos decimales
+            SizedBox(width: 4),
+            Text(unit),
+          ],
+        ),
+      ],
     );
   }
 }

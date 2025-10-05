@@ -1,26 +1,22 @@
 import 'package:airshield/models/location_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationData {
-  static Future<LocationModel?> getUserUbication(String uid) async {
+  static Future<LocationModel?> getUserUbication() async {
     try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('userLocation')
-          .doc(uid)
-          .get();
+      final prefs = await SharedPreferences.getInstance();
 
-      if (userDoc.exists && userDoc.data() != null) {
-        final data = userDoc.data()!;
+      // Leer datos almacenados localmente, con valores por defecto
+      final pais = prefs.getString('pais') ?? 'Desconocido';
+      final estado = prefs.getString('estado') ?? 'Desconocido';
+      final ciudad = prefs.getString('ciudad') ?? 'Desconocido';
 
-        return LocationModel(
-          pais: data['pais'] ?? 'Desconocido',
-          estado: data['estado'] ?? 'Desconocido',
-          ciudad: data['municipio'] ?? 'Desconocido',
-          uid: uid,
-        );
-      } else {
-        return null;
-      }
+      // Retornar el LocationModel con los datos locales
+      return LocationModel(
+        pais: pais,
+        estado: estado,
+        ciudad: ciudad,
+      );
     } catch (e) {
       rethrow;
     }

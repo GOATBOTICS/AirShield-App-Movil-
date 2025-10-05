@@ -1,10 +1,10 @@
 import 'package:airshield/apis/mexico_info.dart';
+import 'package:airshield/apis/openweather_api.dart';
 import 'package:airshield/constants.dart';
 import 'package:airshield/data/user_data.dart';
 import 'package:airshield/models/location_model.dart';
 import 'package:airshield/models/user_model.dart';
 import 'package:airshield/pages/location_confirmed.dart';
-import 'package:airshield/util/log_out.dart';
 import 'package:airshield/util/responsive.dart';
 import 'package:airshield/widgets/buscar_input.dart';
 import 'package:airshield/widgets/card_white.dart';
@@ -12,6 +12,7 @@ import 'package:airshield/widgets/input_field.dart';
 import 'package:airshield/widgets/mostrar_mensaje.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Location extends StatefulWidget {
   const Location({super.key});
@@ -21,6 +22,7 @@ class Location extends StatefulWidget {
 }
 
 class _LocationState extends State<Location> {
+  UbicacionApi clima = UbicacionApi();
   // Errores de los estados y ciudades
   bool errorEstadoState = false;
   bool errorCiudadState = false;
@@ -189,6 +191,11 @@ class _LocationState extends State<Location> {
           });
           errorCiudad = true;
         }
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('pais', pais.text);
+        await prefs.setString('estado', estados.text);
+        await prefs.setString('ciudad', ciudades.text);
       }
 
       if (errorCiudad && errorEstado) {
@@ -250,7 +257,17 @@ class _LocationState extends State<Location> {
       debugPrint(locationModel.estado);
       debugPrint(locationModel.pais);
       debugPrint(userModel.uid);
-      await userData.updateUserLocation(locationModel, userModel);
+
+      final prefs = await SharedPreferences.getInstance();
+      // Obtener los datos locales o valores por defecto
+      String paisn = prefs.getString('pais') ?? 'MEXICO';
+      String estadon = prefs.getString('estado') ?? 'COAHUILA';
+      String ciudadn = prefs.getString('ciudad') ?? 'SALTILLO';
+
+      debugPrint("datos localesssss");
+      debugPrint(paisn);
+      debugPrint(estadon);
+      debugPrint(ciudadn);
 
       // Limpia campos
       vaciar();
@@ -447,7 +464,7 @@ class _LocationState extends State<Location> {
                                     Colors.red.shade300,
                                   ),
                                 ),
-                                onPressed: () => logout(context),
+                                onPressed: () {},
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 5,

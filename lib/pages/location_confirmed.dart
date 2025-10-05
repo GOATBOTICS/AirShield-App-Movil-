@@ -3,8 +3,8 @@ import 'package:airshield/data/location_data.dart';
 import 'package:airshield/pages/dashboard.dart';
 import 'package:airshield/util/responsive.dart';
 import 'package:airshield/widgets/card_white.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationConfirmed extends StatefulWidget {
   const LocationConfirmed({super.key});
@@ -14,16 +14,12 @@ class LocationConfirmed extends StatefulWidget {
 }
 
 class _LocationConfirmedState extends State<LocationConfirmed> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   String pais = "Buscando...";
   String estado = "Buscando...";
   String municipio = "Buscando...";
 
   void _datosUbicacion() async {
-    final user = _auth.currentUser;
-    
-      final uid = user?.uid;
-      final ubicacion = await LocationData.getUserUbication(uid!);
+    final ubicacion = await LocationData.getUserUbication();
 
     if (ubicacion != null) {
       setState(() {
@@ -50,6 +46,26 @@ class _LocationConfirmedState extends State<LocationConfirmed> {
     super.initState();
 
     _datosUbicacion();
+    _datosUbicacionm();
+  }
+
+  void _datosUbicacionm() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Leer datos almacenados
+    final pais = prefs.getString('pais') ?? 'Desconocido';
+    final estado = prefs.getString('estado') ?? 'Desconocido';
+    final ciudad = prefs.getString('ciudad') ?? 'Desconocido';
+
+    // Mostrar en consola para debug
+    debugPrint('Pais: $pais');
+    debugPrint('Estado: $estado');
+    debugPrint('Ciudad: $ciudad');
+
+    // Si quieres, actualizar estado del widget
+    setState(() {
+      // opcional: guardarlos en variables locales del widget si las tienes
+    });
   }
 
   @override

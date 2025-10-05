@@ -25,7 +25,7 @@ class UbicacionApi {
 
         final double temperatura = main['temp']; // Temperatura °C
         final int humedad = main['humidity']; // Humedad %
-        double velocidad = viento['speed'] * 3.6; // Viento en km/h
+        double velocidad = viento['speed']; // Viento en km/h
         velocidad = double.parse(velocidad.toStringAsFixed(1));
 
         // Solo agrega presión si existe en la respuesta

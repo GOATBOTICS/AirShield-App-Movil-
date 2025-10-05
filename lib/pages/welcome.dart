@@ -1,6 +1,8 @@
 import 'package:airshield/constants.dart';
+import 'package:airshield/pages/dashboard.dart';
 import 'package:airshield/pages/location.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -99,12 +101,27 @@ class Welcome extends StatelessWidget {
 
                   // boton
                   TextButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const Location(),
-                        ),
-                      );
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      final pais = prefs.getString('estado');
+
+                      if (!context.mounted) {
+                        return; // <-- Evita usar context si el widget se desmontó
+                      }
+
+                      if (pais != null && pais.isNotEmpty) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const Dashboard(),
+                          ),
+                        );
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const Location(),
+                          ),
+                        );
+                      }
                     },
                     style: ButtonStyle(
                       padding: WidgetStatePropertyAll(

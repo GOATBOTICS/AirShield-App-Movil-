@@ -40,36 +40,4 @@ class UserData {
       rethrow;
     }
   }
-
-  Future<void> updateUserLocation(
-    LocationModel location,
-    UserModel usermodel,
-  ) async {
-    try {
-      final docRef = _firestore.collection('userLocation').doc(usermodel.uid);
-
-      // Verificar si el documento ya existe
-      final docSnapshot = await docRef.get();
-
-      if (docSnapshot.exists) {
-        // Si existe → actualizar
-        await docRef.set({
-          'pais': location.pais,
-          'estado': location.estado,
-          'municipio': location.ciudad,
-          'uid': usermodel.uid,
-        }, SetOptions(merge: true));
-      } else {
-        // Si no existe → crear
-        await docRef.set({
-          'pais': location.pais,
-          'estado': location.estado,
-          'municipio': location.ciudad,
-          'uid': usermodel.uid,
-        });
-      }
-    } catch (e) {
-      rethrow;
-    }
-  }
 }
